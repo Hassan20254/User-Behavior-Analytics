@@ -6,6 +6,7 @@
     <title>الـ 70 معلومة التي يجمعها أي موقع عنك بصمت</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
         
@@ -214,6 +215,119 @@
             </section>
 
         </main>
+
+        <!-- Statistics Dashboard -->
+        <section class="mt-12">
+            <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+                    <i class="fas fa-chart-bar text-purple-500"></i>
+                    لوحة الإحصائيات والتحليلات
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Data Collection Progress -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-tasks text-blue-500"></i>
+                            تقدم جمع البيانات
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">إجمالي البيانات</span>
+                                <span class="font-bold text-blue-600" id="totalDataPoints">0/70</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500" 
+                                     id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 text-center" id="progressPercentage">0% مكتمل</div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Activity -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-heartbeat text-red-500"></i>
+                            النشاط الحالي
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">حركات الماوس</span>
+                                <span class="font-bold text-red-600" id="mouseCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">النقرات</span>
+                                <span class="font-bold text-green-600" id="clickCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">ضغطات المفاتيح</span>
+                                <span class="font-bold text-purple-600" id="keyCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">وقت التصفح</span>
+                                <span class="font-bold text-orange-600" id="timeSpent">0s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Score -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-shield-alt text-green-500"></i>
+                            درجة الخصوصية
+                        </h3>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-red-600 mb-2" id="privacyScore">0</div>
+                            <div class="text-sm text-gray-600">من 100 (خطير جداً)</div>
+                            <div class="mt-3 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium" id="privacyLevel">
+                                عالي المخاطر
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Data Categories Chart -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-pie-chart text-indigo-500"></i>
+                            توزيع فئات البيانات
+                        </h3>
+                        <canvas id="categoriesChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <!-- Activity Timeline -->
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-line-chart text-teal-500"></i>
+                            خط زمني للنشاط
+                        </h3>
+                        <canvas id="timelineChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Statistics -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+                        <div class="text-2xl font-bold" id="deviceInfoCount">0</div>
+                        <div class="text-sm opacity-90">معلومات الجهاز</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
+                        <div class="text-2xl font-bold" id="locationInfoCount">0</div>
+                        <div class="text-sm opacity-90">معلومات الموقع</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+                        <div class="text-2xl font-bold" id="behaviorInfoCount">0</div>
+                        <div class="text-sm opacity-90">سلوك التصفح</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-4 text-white">
+                        <div class="text-2xl font-bold" id="trackingInfoCount">0</div>
+                        <div class="text-sm opacity-90">بيانات التتبع</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Footer -->
         <footer class="mt-12 text-center">

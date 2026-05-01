@@ -9,6 +9,8 @@ class DataTracker {
         this.keyPresses = [];
         this.formInteractions = [];
         this.hoverElements = [];
+        this.categoriesChart = null;
+        this.timelineChart = null;
         this.init();
     }
 
@@ -21,6 +23,8 @@ class DataTracker {
         this.checkVisitHistory();
         this.getBatteryInfo();
         this.detectFonts();
+        this.initializeStatistics();
+        this.setupCharts();
     }
 
     // الشبكة والجهاز (1-9)
@@ -606,6 +610,179 @@ class DataTracker {
         this.updateDisplay('behavior');
     }
 
+    initializeStatistics() {
+        this.updateStatistics();
+        setInterval(() => this.updateStatistics(), 1000);
+    }
+
+    updateStatistics() {
+        // Update progress
+        let total = 0;
+        Object.values(this.data).forEach(category => {
+            total += Object.keys(category).length;
+        });
+        
+        const progress = Math.round((total / 70) * 100);
+        document.getElementById('totalDataPoints').textContent = `${total}/70`;
+        document.getElementById('progressBar').style.width = `${progress}%`;
+        document.getElementById('progressPercentage').textContent = `${progress}% مكتمل`;
+        
+        // Update real-time activity
+        document.getElementById('mouseCount').textContent = this.mouseMovements.length;
+        document.getElementById('clickCount').textContent = this.clicks.length;
+        document.getElementById('keyCount').textContent = this.keyPresses.length;
+        
+        const timeSpent = Math.round((Date.now() - this.startTime) / 1000);
+        const minutes = Math.floor(timeSpent / 60);
+        const seconds = timeSpent % 60;
+        document.getElementById('timeSpent').textContent = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+        
+        // Update privacy score
+        const privacyScore = Math.min(100, Math.round((total / 70) * 100));
+        document.getElementById('privacyScore').textContent = privacyScore;
+        
+        let privacyLevel = 'آمن';
+        let levelClass = 'bg-green-100 text-green-700';
+        if (privacyScore > 70) {
+            privacyLevel = 'خطير جداً';
+            levelClass = 'bg-red-100 text-red-700';
+        } else if (privacyScore > 50) {
+            privacyLevel = 'عالي المخاطر';
+            levelClass = 'bg-orange-100 text-orange-700';
+        } else if (privacyScore > 30) {
+            privacyLevel = 'متوسط المخاطر';
+            levelClass = 'bg-yellow-100 text-yellow-700';
+        }
+        
+        const privacyLevelEl = document.getElementById('privacyLevel');
+        privacyLevelEl.textContent = privacyLevel;
+        privacyLevelEl.className = `mt-3 px-3 py-1 ${levelClass} rounded-full text-xs font-medium`;
+        
+        // Update category counts
+        document.getElementById('deviceInfoCount').textContent = 
+            (this.data.networkDevice ? Object.keys(this.data.networkDevice).length : 0) +
+            (this.data.browserDevice ? Object.keys(this.data.browserDevice).length : 0);
+        
+        document.getElementById('locationInfoCount').textContent = 
+            this.data.location ? Object.keys(this.data.location).length : 0;
+        
+        document.getElementById('behaviorInfoCount').textContent = 
+            (this.data.behavior ? Object.keys(this.data.behavior).length : 0) +
+            (this.data.mouseTouch ? Object.keys(this.data.mouseTouch).length : 0) +
+            (this.data.typingForms ? Object.keys(this.data.typingForms).length : 0);
+        
+        document.getElementById('trackingInfoCount').textContent = 
+            (this.data.sourcePath ? Object.keys(this.data.sourcePath).length : 0) +
+            (this.data.visitTracking ? Object.keys(this.data.visitTracking).length : 0) +
+            (this.data.crossSite ? Object.keys(this.data.crossSite).length : 0);
+        
+        // Update charts
+        this.updateCharts();
+    }
+
+    setupCharts() {
+        // Categories distribution chart
+        const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+        this.categoriesChart = new Chart(categoriesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['الشبكة والجهاز', 'الموقع الجغرافي', 'السلوك على الصفحة', 'حركة الماوس', 'الكتابة والنماذج', 'المتصفح والجهاز', 'التتبع'],
+                datasets: [{
+                    data: [0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: [
+                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                        '#8b5cf6', '#f97316', '#06b6d4'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11 },
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+
+        // Activity timeline chart
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        this.timelineChart = new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'النشاط',
+                    data: [],
+                    borderColor: '#06b6d4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 10 } }
+                    },
+                    x: {
+                        ticks: { font: { size: 10 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    updateCharts() {
+        if (!this.categoriesChart || !this.timelineChart) return;
+        
+        // Update categories chart
+        const categoriesData = [
+            this.data.networkDevice ? Object.keys(this.data.networkDevice).length : 0,
+            this.data.location ? Object.keys(this.data.location).length : 0,
+            this.data.behavior ? Object.keys(this.data.behavior).length : 0,
+            this.data.mouseTouch ? Object.keys(this.data.mouseTouch).length : 0,
+            this.data.typingForms ? Object.keys(this.data.typingForms).length : 0,
+            this.data.browserDevice ? Object.keys(this.data.browserDevice).length : 0,
+            (this.data.sourcePath ? Object.keys(this.data.sourcePath).length : 0) +
+            (this.data.visitTracking ? Object.keys(this.data.visitTracking).length : 0) +
+            (this.data.crossSite ? Object.keys(this.data.crossSite).length : 0)
+        ];
+        
+        this.categoriesChart.data.datasets[0].data = categoriesData;
+        this.categoriesChart.update();
+        
+        // Update timeline chart
+        const currentTime = new Date().toLocaleTimeString('ar-SA', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        const activityScore = this.mouseMovements.length + this.clicks.length + this.keyPresses.length;
+        
+        if (this.timelineChart.data.labels.length > 10) {
+            this.timelineChart.data.labels.shift();
+            this.timelineChart.data.datasets[0].data.shift();
+        }
+        
+        this.timelineChart.data.labels.push(currentTime);
+        this.timelineChart.data.datasets[0].data.push(activityScore);
+        this.timelineChart.update();
+    }
+
     exportData() {
         let total = 0;
         Object.values(this.data).forEach(category => {
@@ -620,7 +797,8 @@ class DataTracker {
                 mouseMovements: this.mouseMovements.length,
                 clicks: this.clicks.length,
                 scrollEvents: this.scrollEvents.length,
-                timeSpent: Math.round((Date.now() - this.startTime) / 1000)
+                timeSpent: Math.round((Date.now() - this.startTime) / 1000),
+                privacyScore: Math.min(100, Math.round((total / 70) * 100))
             }
         };
 
