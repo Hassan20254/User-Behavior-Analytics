@@ -2,13 +2,24 @@
   "name": "data-tracking-demo",
   "version": "1.0.0",
   "description": "Educational demo showing 70 data points websites collect about users",
-  "main": "index.html",
+  "type": "module",
   "scripts": {
-    "dev": "python -m http.server 8000",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "python -m http.server 8000"
   },
   "keywords": ["privacy", "tracking", "educational", "data-collection"],
   "author": "Demo",
   "license": "MIT",
-  "devDependencies": {}
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.2.0"
+  }
 }
