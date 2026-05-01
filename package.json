@@ -1,0 +1,14 @@
+{
+  "name": "data-tracking-demo",
+  "version": "1.0.0",
+  "description": "Educational demo showing 70 data points websites collect about users",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000"
+  },
+  "keywords": ["privacy", "tracking", "educational", "data-collection"],
+  "author": "Demo",
+  "license": "MIT",
+  "devDependencies": {}
+}
